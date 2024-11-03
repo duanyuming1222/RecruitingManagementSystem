@@ -1,0 +1,186 @@
+CREATE DATABASE java_job CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+
+CREATE TABLE b_ad (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    image VARCHAR(255),  -- 假设image字段存储的是URL或文件路径，根据实际情况调整长度
+    link VARCHAR(255),   -- 假设link字段存储的是URL，根据实际情况调整长度
+    create_time VARCHAR(100) -- 假设createTime字段存储的是日期时间信息
+) DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE b_address (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255),
+    mobile VARCHAR(20),
+    description TEXT,
+    def VARCHAR(255),
+    create_time VARCHAR(100),
+    user_id VARCHAR(255)
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;;
+CREATE TABLE b_banner (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    image VARCHAR(255),
+    thingId BIGINT,
+    create_time VARCHAR(100)
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+CREATE TABLE b_classification (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255),
+    create_time VARCHAR(100)
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- 创建b_comment表
+CREATE TABLE b_comment (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    content TEXT,
+    comment_time varchar(100),
+    likeCount INT, -- 假设点赞数为整数
+    userId VARCHAR(255),
+    thingId BIGINT
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 创建b_company表
+CREATE TABLE b_company (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cover VARCHAR(255), -- 假设封面图片的路径或URL
+    title VARCHAR(255),
+    guimo VARCHAR(255), -- 规模
+    hangye VARCHAR(255), -- 行业
+    description TEXT,
+    location VARCHAR(255),
+    user_id VARCHAR(255)
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- 创建b_error_log表
+CREATE TABLE b_error_log (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    ip VARCHAR(45),
+    url VARCHAR(255),
+    method VARCHAR(10), -- 假设HTTP方法如GET, POST等长度不会超过10
+    content TEXT,
+    log_time varchar(100)
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 创建b_notice表
+CREATE TABLE b_notice (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255),
+    content TEXT,
+    create_time varchar(100)
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 创建b_op_log表
+CREATE TABLE b_op_log (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    re_ip VARCHAR(45),
+    re_time VARCHAR(100),
+    re_ua TEXT, -- 假设User-Agent字符串可能比较长
+    re_url VARCHAR(255),
+    re_method VARCHAR(10), -- 同上，假设HTTP方法长度不会超过10
+    re_content TEXT,
+    access_time varchar(100)
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 创建b_order表
+CREATE TABLE b_order (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    status VARCHAR(50), -- 订单状态可能有多种，预留足够长度
+    order_time DATETIME,
+    pay_time varchar(100), -- 可能为NULL，如果订单未支付
+    thing_id VARCHAR(255), -- 假设是关联到某个商品或服务的ID
+    user_id VARCHAR(255), -- 假设是用户的唯一标识符
+    count INT, -- 购买数量
+    order_number VARCHAR(100), -- 订单编号，需要唯一性约束（这里未添加，根据实际情况添加）
+    receiver_address VARCHAR(255),
+    receiver_name VARCHAR(100),
+    receiver_phone VARCHAR(20), -- 电话号码格式可能因地区而异
+    remark TEXT -- 备注信息，可能为空
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- 创建b_resume表
+CREATE TABLE b_resume (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cover VARCHAR(255), -- 简历封面图片的路径或URL
+    name VARCHAR(100), -- 姓名
+    sex VARCHAR(100), -- 性别，使用ENUM类型限制输入
+    birthday DATE, -- 出生日期
+    raw TEXT, -- 原始简历内容，可能包含HTML或其他格式
+    education VARCHAR(50), -- 教育背景
+    school VARCHAR(100), -- 毕业院校
+    email VARCHAR(100), -- 电子邮件
+    mobile VARCHAR(20), -- 手机号码
+    user_id VARCHAR(255) -- 用户ID，关联到用户表
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 创建b_tag表
+CREATE TABLE b_tag (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(100), -- 标签名称
+    create_time VARCHAR(100) -- 创建时间
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 创建b_thing表
+CREATE TABLE b_thing (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255), -- 商品/服务/职位标题
+    cover VARCHAR(255), -- 封面图片的路径或URL
+    description TEXT, -- 商品/服务/职位描述
+    education VARCHAR(50), -- 教育要求
+    status ENUM('active', 'inactive', 'deleted'), -- 状态，使用ENUM类型限制输入
+    create_time VARCHAR(100), -- 创建时间
+    location VARCHAR(255), -- 地点/位置
+    salary VARCHAR(50), -- 薪资范围或具体薪资
+    work_expe VARCHAR(255), -- 工作经验要求
+    pv BIGINT DEFAULT 0, -- 页面浏览量
+    recommend_count BIGINT DEFAULT 0, -- 推荐次数
+    wish_count BIGINT DEFAULT 0, -- 收藏次数
+    collect_count BIGINT DEFAULT 0, -- 关注次数
+    classification_id BIGINT, -- 分类ID，关联到分类表
+    user_id VARCHAR(255), -- 发布者的用户ID
+    company_id VARCHAR(255) -- 公司ID，如果适用（可能是NULL对于非公司发布的商品/服务）
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+-- 创建b_thing_collect表
+CREATE TABLE b_thing_collect (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    thing_id VARCHAR(255) NOT NULL, -- 关联到b_thing表的id
+    user_id VARCHAR(255) NOT NULL -- 关联到b_user表的id
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 创建b_thing_tag表
+CREATE TABLE b_thing_tag (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    thing_id BIGINT NOT NULL, -- 关联到b_thing表的id
+    tag_id BIGINT NOT NULL -- 关联到b_tag表的id
+
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 创建b_thing_wish表
+CREATE TABLE b_thing_wish (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    thing_id VARCHAR(255) NOT NULL, -- 关联到b_thing表的id
+    user_id VARCHAR(255) NOT NULL-- 关联到b_user表的id
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- 创建b_user表
+CREATE TABLE b_user (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY, -- 使用VARCHAR作为主键，通常用于UUID或其他字符串ID
+    username VARCHAR(100) NOT NULL UNIQUE, -- 用户名，唯一
+    password VARCHAR(255) NOT NULL, -- 密码
+    nickname VARCHAR(100), -- 昵称
+    mobile VARCHAR(20) UNIQUE, -- 手机号码，唯一
+    email VARCHAR(100) UNIQUE, -- 电子邮件，唯一
+    description TEXT, -- 用户描述
+    role VARCHAR(1) NOT NULL, -- 用户角色
+    status VARCHAR(1) NOT NULL, -- 用户状态
+    score INT DEFAULT 0, -- 用户积分
+    avatar VARCHAR(255), -- 用户头像的路径或URL
+    token VARCHAR(255) UNIQUE, -- 用户令牌，用于身份验证
+    create_time VARCHAR(100), -- 创建时间，默认为当前时间
+    push_email ENUM('yes', 'no') DEFAULT 'no', -- 是否推送邮件通知
+    push_switch ENUM('on', 'off') DEFAULT 'off' -- 推送开关
+)DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `b_post` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT,
+  `resumeId` VARCHAR(255) DEFAULT NULL,
+  `userId` VARCHAR(255) DEFAULT NULL,
+  `thingId` VARCHAR(255) DEFAULT NULL,
+  `companyId` VARCHAR(255) DEFAULT NULL,
+  `createTime` VARCHAR(100),
+  PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET=utf8mb4 COLLATE=utf8mb4_general_ci;
