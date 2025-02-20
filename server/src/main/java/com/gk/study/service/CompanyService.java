@@ -6,6 +6,7 @@ import com.gk.study.entity.Company;
 import java.util.List;
 
 public interface CompanyService {
+    Company getCompanyById(String id);
     List<Company> getCompanyList();
     void createCompany(Company company);
     void deleteCompany(String id);

@@ -20,7 +20,7 @@
                 </span>
                 <div class="translators flex-view" style="">
                   <span>所属公司：</span>
-                  <span class="name">{{ detailData.company_title }}</span>
+                  <span class="name">{{ detailData.companyName }}</span>
                 </div>
                 <div class="translators flex-view" style="">
                   <span>工作地点：</span>
@@ -32,7 +32,7 @@
                 </div>
                 <div class="translators flex-view" style="">
                   <span>经验要求：</span>
-                  <span class="name">{{ detailData.work_expe }}</span>
+                  <span class="name">{{ detailData.workExpe }}</span>
                 </div>
                 <div class="translators flex-view" style="">
                   <span>岗位描述：</span>
@@ -169,7 +169,7 @@
                   </div>
                   <p class="job-text">
                     <span>{{ item.location }}</span>
-                    <span>{{ item.work_expe }}</span>
+                    <span>{{ item.workExpe }}</span>
                     <span>{{ item.education }}</span>
                   </p>
                 </a>

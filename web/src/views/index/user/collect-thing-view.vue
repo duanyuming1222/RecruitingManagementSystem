@@ -16,7 +16,7 @@
               </div>
               <p class="job-text">
                 <span>{{item.location}}</span>
-                <span>{{item.work_expe}}</span>
+                <span>{{item.workExpe}}</span>
                 <span>{{item.education}}</span>
               </p>
             </a>

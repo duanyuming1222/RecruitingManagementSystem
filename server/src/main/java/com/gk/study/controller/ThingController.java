@@ -1,10 +1,16 @@
 package com.gk.study.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.gk.study.common.APIResponse;
 import com.gk.study.common.ResponeCode;
+import com.gk.study.entity.Tag;
 import com.gk.study.entity.Thing;
+import com.gk.study.entity.ThingTag;
+import com.gk.study.mapper.ThingTagMapper;
 import com.gk.study.permission.Access;
 import com.gk.study.permission.AccessLevel;
+import com.gk.study.service.CompanyService;
+import com.gk.study.service.TagService;
 import com.gk.study.service.ThingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +37,15 @@ public class ThingController {
     @Autowired
     ThingService service;
 
+    @Autowired
+    CompanyService companyService;
+
+    @Autowired
+    ThingTagMapper thingTagMapper;
+
+    @Autowired
+    TagService tagService;
+
     @Value("${File.uploadPath}")
     private String uploadPath;
 
@@ -44,7 +59,10 @@ public class ThingController {
     @RequestMapping(value = "/detail", method = RequestMethod.GET)
     public APIResponse detail(String id){
         Thing thing =  service.getThingById(id);
-
+        thing.companyName = companyService.getCompanyById(thing.companyId).getTitle();
+        thingTagMapper.selectList(new QueryWrapper<ThingTag>().eq("thing_id", thing.id)).forEach(tag -> {
+            thing.tags.add(tag.tagId);
+        });
         return new APIResponse(ResponeCode.SUCCESS, "查询成功", thing);
     }
 
@@ -113,7 +131,12 @@ public class ThingController {
     @RequestMapping(value = "/listUserThingApi", method = RequestMethod.GET)
     public APIResponse listUserThingApi(String userId){
         List<Thing> list =  service.getUserThing(userId);
-
+        list.forEach(thing -> {
+             thing.companyName = companyService.getCompanyById(thing.companyId).getTitle();
+             thingTagMapper.selectList(new QueryWrapper<ThingTag>().eq("thing_id", thing.id)).forEach(tag -> {
+                 thing.tags.add(tag.tagId);
+            });
+        });
         return new APIResponse(ResponeCode.SUCCESS, "查询成功", list);
     }
 

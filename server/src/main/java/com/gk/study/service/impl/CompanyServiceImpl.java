@@ -16,6 +16,11 @@ public class CompanyServiceImpl extends ServiceImpl<CompanyMapper, Company> impl
     CompanyMapper mapper;
 
     @Override
+    public Company getCompanyById(String id) {
+        return mapper.selectById(id);
+    }
+
+    @Override
     public List<Company> getCompanyList() {
         return mapper.selectList(new QueryWrapper<>());
     }

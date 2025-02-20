@@ -71,7 +71,7 @@
                 </a-col>
                 <a-col span="12">
                   <a-form-item label="标签">
-                    <a-select mode="multiple" placeholder="请选择" allowClear v-model:value="modal.form.tag">
+                    <a-select mode="multiple" placeholder="请选择" allowClear v-model:value="modal.form.tags">
                       <template v-for="item in modal.tagData">
                         <a-select-option :value="item.id">{{item.title}}</a-select-option>
                       </template>
@@ -105,7 +105,7 @@
                 </a-col>
                 <a-col span="12">
                   <a-form-item label="经验要求" name="status">
-                    <a-select placeholder="请选择" allowClear v-model:value="modal.form.work_expe">
+                    <a-select placeholder="请选择" allowClear v-model:value="modal.form.workExpe">
                       <a-select-option key="不限" value="不限">不限</a-select-option>
                       <a-select-option key="1-3年" value="1-3年">1-3年</a-select-option>
                       <a-select-option key="3-5年" value="3-5年">3-5年</a-select-option>
@@ -158,8 +158,8 @@ const columns = reactive([
   },
   {
     title: '公司名称',
-    dataIndex: 'company_title',
-    key: 'company_title'
+    dataIndex: 'companyName',
+    key: 'companyName'
   },
   {
     title: '薪资水平',
@@ -179,8 +179,8 @@ const columns = reactive([
   },
   {
     title: '经验要求',
-    dataIndex: 'work_expe',
-    key: 'work_expe'
+    dataIndex: 'workExpe',
+    key: 'workExpe'
   },
   {
     title: '工作地点',
@@ -234,7 +234,7 @@ const modal = reactive({
     status: undefined,
     location: undefined,
     salary: undefined,
-    work_expe: undefined,
+    workExpe: undefined,
     education: undefined
   },
   rules: {
@@ -396,8 +396,8 @@ const handleOk = () => {
           formData.append('location', modal.form.location)
         } if (modal.form.salary) {
           formData.append('salary', modal.form.salary)
-        } if (modal.form.work_expe) {
-          formData.append('work_expe', modal.form.work_expe)
+        } if (modal.form.workExpe) {
+          formData.append('workExpe', modal.form.workExpe)
         } if (modal.form.education) {
           formData.append('education', modal.form.education)
         }
@@ -415,6 +415,7 @@ const handleOk = () => {
           listUserCompanyApi({userId:userId}).then(res => {
             if(res.data.length>0){
               formData.append("companyId", res.data[0].id)
+
               createApi(formData)
                   .then((res) => {
                     hideModal();

@@ -8,6 +8,7 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -45,7 +46,7 @@ public class Thing implements Serializable {
     public Long classificationId;
 
     @TableField(exist = false)
-    public List<Long> tags; // 标签
+    public List<Long> tags = new ArrayList<>(); // 标签
 
     @TableField(exist = false)
     public MultipartFile imageFile;
@@ -55,4 +56,6 @@ public class Thing implements Serializable {
     @TableField
     public String companyId;
 
+    @TableField(exist = false)
+    public String companyName;
 }

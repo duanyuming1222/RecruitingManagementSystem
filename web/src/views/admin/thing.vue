@@ -153,11 +153,11 @@ const columns = reactive([
   },
   {
     title: '公司名称',
-    dataIndex: 'company_title',
-    key: 'company_title'
+    dataIndex: 'companyName',
+    key: 'companyName'
   },
   {
-    title: '薪资水平',
+    title: '薪资水平a',
     dataIndex: 'salary',
     key: 'salary'
   },

@@ -39,6 +39,7 @@ export default ({ command }: ConfigEnv): UserConfig => {
     css: {},
 
     // server
+
     server: {
       hmr: { overlay: false }, // 禁用或配置 HMR 连接 设置 server.hmr.overlay 为 false 可以禁用服务器错误遮罩层
       // 服务配置
