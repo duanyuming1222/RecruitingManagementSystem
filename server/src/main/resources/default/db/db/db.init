@@ -125,7 +125,7 @@ CREATE TABLE b_thing (
     create_time VARCHAR(100), -- 创建时间
     location VARCHAR(255), -- 地点/位置
     salary VARCHAR(50), -- 薪资范围或具体薪资
-    workExpe VARCHAR(255), -- 工作经验要求
+    work_expe VARCHAR(255), -- 工作经验要求
     pv BIGINT DEFAULT 0, -- 页面浏览量
     recommend_count BIGINT DEFAULT 0, -- 推荐次数
     wish_count BIGINT DEFAULT 0, -- 收藏次数
