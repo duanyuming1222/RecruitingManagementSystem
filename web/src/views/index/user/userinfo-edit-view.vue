@@ -7,11 +7,11 @@
         <div class="item flex-view">
           <div class="label">头像</div>
           <div class="right-box avatar-box flex-view">
-            <img v-if="tData.form && tData.form.avatar" :src="tData.form.avatar" class="avatar">
+            <img v-if="tData.form && tData.form.avatar" :src="tData.form.avatarUrl" class="avatar">
             <img v-else :src="AvatarIcon" class="avatar">
             <div class="change-tips flex-view">
                 <a-upload
-                  name="file"
+                  name="avatarFile"
                   accept="image/*"
                   :multiple="false"
                   :before-upload="beforeUpload"
@@ -70,6 +70,7 @@ let loading = ref(false)
 let tData = reactive({
   form:{
     avatar: undefined,
+    avatarUrl: undefined,
     avatarFile: undefined,
     nickname: undefined,
     email: undefined,
@@ -82,14 +83,25 @@ onMounted(()=>{
   getUserInfo()
 })
 
-const beforeUpload =(file)=> {
-  // 改文件名
-  const fileName = new Date().getTime().toString() + '.' + file.type.substring(6)
-  const copyFile = new File([file], fileName)
-  console.log(copyFile)
-  tData.form.avatarFile = copyFile
-  return false
-}
+const beforeUpload = (file) => {
+  // 检查文件类型
+  const isImage = file.type.startsWith('image/');
+  if (!isImage) {
+    message.error('只能上传图片文件!');
+    return false;
+  }
+
+  // 检查文件大小（4MB）
+  const isLt4M = file.size / 1024 / 1024 < 4;
+  if (!isLt4M) {
+    message.error('图片必须小于4MB!');
+    return false;
+  }
+
+  // 保存文件
+  tData.form.avatarFile = file;
+  return false;
+};
 
 const getUserInfo =()=> {
   loading.value = true
@@ -97,7 +109,7 @@ const getUserInfo =()=> {
   detailApi({userId: userId}).then(res => {
     tData.form = res.data
     if (tData.form.avatar) {
-      tData.form.avatar = BASE_URL + '/api/staticfiles/avatar/' + tData.form.avatar
+      tData.form.avatarUrl = `${BASE_URL}/api/upload/avatar/${tData.form.avatar}`;
     }
     loading.value = false
   }).catch(err => {

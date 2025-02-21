@@ -1,15 +1,11 @@
-
 server.port: 9100
 server.servlet.context-path: /api
 
 BASE_LOCATION: D:\source_code\java_job
 DB_NAME: java_job
 
- 
-
-
 File:
-  uploadPath: ${BASE_LOCATION}\server\upload
+  uploadPath: D:/source_code/java_job/server/upload
 
 mybatis:
   configuration:
@@ -17,7 +13,6 @@ mybatis:
 
 spring:
   datasource:
-
     type: com.alibaba.druid.pool.DruidDataSource #引入druid数据源
     #数据源基本信息，也可放在druid下
     url: jdbc:mysql://127.0.0.1:3306/java_job?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC
@@ -61,3 +56,9 @@ spring:
       #配置web-stat-filter
       web-stat-filter:
         enabled: true
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB

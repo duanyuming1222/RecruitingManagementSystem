@@ -7,11 +7,11 @@
         <div class="item flex-view">
           <div class="label">头像</div>
           <div class="right-box avatar-box flex-view">
-            <img v-if="tData.form && tData.form.avatar" :src="tData.form.avatar" class="avatar">
+            <img v-if="tData.form && tData.form.cover" :src="tData.form.coverUrl" class="avatar">
             <img v-else :src="AvatarIcon" class="avatar">
             <div class="change-tips flex-view">
                 <a-upload
-                  name="file"
+                  name="coverFile"
                   accept="image/*"
                   :multiple="false"
                   :before-upload="beforeUpload"
@@ -61,19 +61,35 @@
         </div>
         <div class="item flex-view">
           <div class="label">简历附件</div>
-          <div class="right-box" style="display: flex;flex-direction: row;">
+          <div class="right-box">
+            <div v-if="tData.form.raw" class="file-info">
+              <div class="file-display">
+                <file-pdf-outlined v-if="isPdf" class="file-icon pdf" />
+                <file-word-outlined v-else-if="isWord" class="file-icon word" />
+                <file-outlined v-else class="file-icon" />
+                <span class="file-name">{{ getDisplayFileName }}</span>
+              </div>
+              <div class="file-actions">
+                <a-button type="link" @click="handlePreview" v-if="isPdf">
+                  <eye-outlined /> 预览
+                </a-button>
+                <a-button type="link" @click="handleDownload">
+                  <download-outlined /> 下载
+                </a-button>
+              </div>
+            </div>
+            
             <a-upload
-                name="file1"
-                :multiple="false"
-                :before-upload="beforeUpload1"
+              :multiple="false"
+              :before-upload="beforeUpload1"
+              accept=".pdf,.doc,.docx"
             >
               <a-button>
-                <upload-outlined></upload-outlined>
-                点击选择文件
+                <upload-outlined />
+                {{ tData.form.raw ? '重新上传' : '点击选择文件' }}
               </a-button>
-              （docx或pdf）
+              <span class="upload-tip">（支持 PDF、DOC、DOCX 格式）</span>
             </a-upload>
-            <a v-if="tData.form.raw" :href="tData.form.downloadUrl" style="margin-top: 6px;">下载</a>
           </div>
         </div>
         <button class="save mg" @click="submit()">保存</button>
@@ -86,11 +102,20 @@
 <script setup>
 import {message} from "ant-design-vue";
 import {
-  detailApi, createApi, updateApi
+  detailApi, createApi, updateApi, getPreviewUrl, getDownloadUrl
 } from '/@/api/resume'
 import {BASE_URL} from "/@/store/constants";
 import {useUserStore} from "/@/store";
 import AvatarIcon from '/@/assets/images/avatar.jpg'
+import { computed } from 'vue';
+import { 
+  UploadOutlined, 
+  EyeOutlined, 
+  DownloadOutlined,
+  FilePdfOutlined,
+  FileWordOutlined,
+  FileOutlined
+} from '@ant-design/icons-vue';
 
 const router = useRouter();
 const userStore = useUserStore();
@@ -103,8 +128,9 @@ let tData = reactive({
     sex: undefined,
     birthday: undefined,
     education: undefined,
-    avatar: undefined,
-    avatarFile: undefined,
+    cover: undefined,
+    coverUrl: undefined,
+    coverFile: undefined,
     rawFile: undefined,
     raw: undefined,
     email: undefined,
@@ -118,24 +144,83 @@ onMounted(()=>{
   getDetail()
 })
 
-const beforeUpload =(file)=> {
-  // 改文件名
-  const fileName = new Date().getTime().toString() + '.' + file.type.substring(6)
-  const copyFile = new File([file], fileName)
-  console.log(copyFile)
-  tData.form.avatarFile = copyFile
-  return false
+const beforeUpload = (file) => {
+  // 检查文件类型
+  const isImage = file.type.startsWith('image/');
+  if (!isImage) {
+    message.error('只能上传图片文件!');
+    return false;
+  }
+
+  // 检查文件大小（4MB）
+  const isLt4M = file.size / 1024 / 1024 < 4;
+  if (!isLt4M) {
+    message.error('图片必须小于4MB!');
+    return false;
+  }
+
+  // 保存文件
+  tData.form.coverFile = file;
+  return false;
 }
 
+const isPdf = computed(() => {
+  const filename = tData.form.raw;
+  return filename && filename.toLowerCase().endsWith('.pdf');
+});
 
-const beforeUpload1 =(file)=> {
-  // 改文件名
-  const fileName = new Date().getTime().toString() + '.' + file.type.substring(6)
-  const copyFile = new File([file], fileName)
-  console.log(copyFile)
-  tData.form.rawFile = copyFile
-  return false
-}
+const isWord = computed(() => {
+  const filename = tData.form.raw;
+  if (!filename) return false;
+  const lower = filename.toLowerCase();
+  return lower.endsWith('.doc') || lower.endsWith('.docx');
+});
+
+const getDisplayFileName = computed(() => {
+  const name = tData.form.raw;
+  if (!name) return '';
+  const uuidLength = 36; // UUID的长度
+  if (name.length > uuidLength) {
+    return name.substring(uuidLength + 1); // +1 是为了跳过连字符
+  }
+  return name;
+});
+
+const handlePreview = () => {
+  if (!tData.form.raw) return;
+  if (isPdf.value) {
+    const filename = tData.form.raw.split('/').pop();
+    window.open(`${BASE_URL}/api/resume/file/${filename}`, '_blank');
+  }
+};
+
+const handleDownload = () => {
+  if (!tData.form.raw) return;
+  const filename = tData.form.raw.split('/').pop();
+  window.location.href = `${BASE_URL}/api/resume/download/${filename}`;
+};
+
+const beforeUpload1 = (file) => {
+  // 检查文件类型
+  const isValidType = ['.pdf', '.doc', '.docx'].some(ext => 
+    file.name.toLowerCase().endsWith(ext)
+  );
+  
+  if (!isValidType) {
+    message.error('只能上传 PDF、DOC、DOCX 格式的文件!');
+    return false;
+  }
+  
+  // 检查文件大小（10MB）
+  const isLt10M = file.size / 1024 / 1024 < 10;
+  if (!isLt10M) {
+    message.error('文件必须小于10MB!');
+    return false;
+  }
+
+  tData.form.rawFile = file;
+  return false;
+};
 
 const getDetail =()=> {
   loading.value = true
@@ -143,8 +228,8 @@ const getDetail =()=> {
   detailApi({userId: userId}).then(res => {
     if(res.data){
       tData.form = res.data
-      if (tData.form.avatar) {
-        tData.form.avatar = BASE_URL  + tData.form.avatar
+      if (tData.form.cover) {
+        tData.form.coverUrl = `${BASE_URL}/api/upload/resume/${tData.form.cover}`;
       }
       if(tData.form.raw) {
         tData.form.downloadUrl = BASE_URL + tData.form.raw
@@ -165,8 +250,8 @@ const submit =()=> {
   if (tData.form.id) {
     formData.append('id', tData.form.id)
   }
-  if (tData.form.avatarFile) {
-    formData.append('coverFile', tData.form.avatarFile)
+  if (tData.form.coverFile) {
+    formData.append('coverFile', tData.form.coverFile)
   }
   if (tData.form.rawFile) {
     formData.append('rawFile', tData.form.rawFile)
@@ -350,6 +435,51 @@ input, textarea {
       margin-left: 100px;
     }
   }
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: #f8fafb;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.file-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.file-icon {
+  font-size: 20px;
+  color: #666;
+  
+  &.pdf {
+    color: #ff4d4f;
+  }
+  
+  &.word {
+    color: #1890ff;
+  }
+}
+
+.file-name {
+  color: #333;
+  font-size: 14px;
+}
+
+.file-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.upload-tip {
+  margin-left: 8px;
+  color: #666;
+  font-size: 14px;
 }
 
 </style>
