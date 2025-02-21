@@ -24,7 +24,7 @@
             <span class="num">{{item.name}}</span>
             <span class="open" @click="handleResume(item.raw)">简历</span>
             <span class="text">投递时间</span>
-            <span class="money">{{item.create_time}}</span>
+            <span class="money">{{getFormatTime(item.createTime, true)}}</span>
           </div>
         </div>
       </div>
@@ -42,6 +42,7 @@ import {listCompanyPostApi} from '/@/api/post'
 import {listUserCompanyApi} from '/@/api/company'
 import {BASE_URL} from "/@/store/constants";
 import {useUserStore} from "/@/store";
+import {getFormatTime} from "/@/utils";
 
 const router = useRouter();
 const route = useRoute();

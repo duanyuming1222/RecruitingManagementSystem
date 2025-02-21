@@ -74,7 +74,7 @@ public class ResumeController {
     }
 
     public void saveResume(Resume resume) throws IOException {
-        MultipartFile file = resume.getCoverFile();
+        MultipartFile file = resume.getRawFile();
         String newFileName = null;
         if(file !=null && !file.isEmpty()) {
 
@@ -90,7 +90,7 @@ public class ResumeController {
             file.transferTo(destFile);
         }
         if(!StringUtils.isEmpty(newFileName)) {
-            resume.cover = newFileName;
+            resume.raw = newFileName;
         }
     }
 

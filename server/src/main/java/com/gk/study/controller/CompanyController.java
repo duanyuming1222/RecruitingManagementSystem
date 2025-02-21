@@ -97,9 +97,7 @@ public class CompanyController {
     @RequestMapping(value = "/listUserCompany", method = RequestMethod.GET)
     public APIResponse listUserCompany(String userId){
         List<Company> list =  service.getUserCompanyList(userId);
-        for (Company company : list) {
 
-        }
         return new APIResponse(ResponeCode.SUCCESS, "查询成功", list);
     }
 }
