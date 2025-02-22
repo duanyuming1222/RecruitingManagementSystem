@@ -3,9 +3,11 @@ package com.gk.study.controller;
 import com.gk.study.common.APIResponse;
 import com.gk.study.common.ResponeCode;
 import com.gk.study.entity.Post;
+import com.gk.study.entity.Thing;
 import com.gk.study.permission.Access;
 import com.gk.study.permission.AccessLevel;
 import com.gk.study.service.PostService;
+import com.gk.study.service.ThingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,11 @@ public class PostController {
     @Autowired
     PostService service;
 
+    @Autowired
+    NoticeController noticeController;
+
+    @Autowired
+    ThingService thingService;
 
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public APIResponse list(){
@@ -39,8 +46,9 @@ public class PostController {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @Transactional
     public APIResponse create(Post post) throws IOException {
-
         service.createPost(post);
+        Thing thing = thingService.getThingById(post.getThingId());
+        noticeController.createResumeNotice(post.getUserId(), post.getCompanyId(), thing.getTitle());
         return new APIResponse(ResponeCode.SUCCESS, "创建成功");
     }
 
@@ -101,6 +109,10 @@ public class PostController {
             }
 
             service.updatePost(existingPost);
+            
+            Thing thing = thingService.getThingById(existingPost.getThingId());
+            noticeController.createStatusChangeNotice(existingPost.getUserId(), post.getStatus(), thing.getTitle());
+
             return new APIResponse(ResponeCode.SUCCESS, "更新成功");
         } catch (Exception e) {
             logger.error("更新状态失败", e);

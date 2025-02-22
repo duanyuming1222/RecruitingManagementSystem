@@ -37,105 +37,105 @@
       </template>
 
       <div class="right-icon" @click="msgVisible=true">
-        <img :src="MessageIcon">
+        <img :src="MessageIcon" />
         <span class="msg-point" style=""></span>
       </div>
-      <div>
-        <a-drawer
-            title="我的消息"
-            placement="right"
-            :closable="true"
-            :maskClosable="true"
-            :visible="msgVisible"
-            @close="onClose"
-        >
-          <a-spin :spinning="loading" style="min-height: 200px;">
-            <div class="list-content">
-              <div class="notification-view">
-                <div class="list">
-                  <div class="notification-item flex-view" v-for="item in msgData">
-                    <!---->
-                    <div class="content-box">
-                      <div class="header">
-                        <span class="title-txt">{{item.title}}</span>
-                        <br/>
-                        <span class="time">{{ item.create_time }}</span>
-                      </div>
-                      <div class="head-text">
-                      </div>
-                      <div class="content">
-                        <p>{{ item.content }}</p>
-                      </div>
+      <a-drawer
+        v-model:visible="msgVisible"
+        title="我的消息"
+        placement="right"
+        :closable="true"
+        :maskClosable="true"
+        @close="onClose"
+      >
+        <a-spin :spinning="loading">
+          <div class="list-content">
+            <div class="notification-view">
+              <div class="list">
+                <div class="notification-item flex-view" v-for="item in msgData" :key="item.id">
+                  <div class="content-box">
+                    <div class="header">
+                      <span class="title-txt">{{ item.title }}</span>
+                      <span class="time">{{ getFormatTime(item.createTime) }}</span>
+                    </div>
+                    <div class="content">
+                      <p>{{ item.content }}</p>
                     </div>
                   </div>
                 </div>
               </div>
+              <a-empty v-if="!msgData.length" description="暂无消息" />
             </div>
-          </a-spin>
-        </a-drawer>
-      </div>
+          </div>
+        </a-spin>
+      </a-drawer>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import {listApi} from '/@/api/notice'
-import {useUserStore} from "/@/store";
+import { ref, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import {deleteApi, listApi} from '/@/api/notice';
+import { useUserStore } from '/@/store';
+import { getFormatTime } from '/@/utils';
 import logoImage from '/@/assets/images/k-logo.png';
 import SearchIcon from '/@/assets/images/search-icon.svg';
 import AvatarIcon from '/@/assets/images/avatar.jpg';
 import MessageIcon from '/@/assets/images/message-icon.svg';
 
-
 const router = useRouter();
 const route = useRoute();
 const userStore = useUserStore();
 
-const keywordRef = ref()
+const keywordRef = ref();
+const loading = ref(false);
+const msgVisible = ref(false);
+const msgData = ref([]);
 
-let loading = ref(false)
-let msgVisible = ref(false)
-let msgData = ref([] as any)
-
-onMounted(()=>{
-  getMessageList()
-})
-
-const getMessageList = ()=> {
-  loading.value = true
-  listApi({}).then(res => {
-    msgData.value = res.data
-    loading.value = false
+onMounted(() => {
+  getMessageList();
+});
+const getMessageList = () => {
+  loading.value = true;
+  listApi({ 
+    userId: userStore.user_id
+  }).then(res => {
+    msgData.value = res.data;
+    loading.value = false;
   }).catch(err => {
-    console.log(err)
-    loading.value = false
-  })
+    console.error('获取消息失败:', err);
+    loading.value = false;
+  });
 }
+
 const search = () => {
-  const keyword = keywordRef.value.value
+  const keyword = keywordRef.value.value;
   if (route.name === 'search') {
-    router.push({name: 'search', query: {keyword: keyword}})
+    router.push({name: 'search', query: {keyword: keyword}});
   } else {
-    let text = router.resolve({name: 'search', query: {keyword: keyword}})
-    window.open(text.href, '_blank')
+    let text = router.resolve({name: 'search', query: {keyword: keyword}});
+    window.open(text.href, '_blank');
   }
 }
+
 const goLogin = () => {
-  router.push({name: 'login'})
+  router.push({name: 'login'});
 }
 
 const goUserCenter = (menuName) => {
-  router.push({name: menuName})
+  router.push({name: menuName});
 }
-const quit= () => {
+
+const quit = () => {
   userStore.logout().then(res => {
-    router.push({name: 'portal'})
-  })
+    router.push({name: 'portal'});
+  });
 }
+
 const onClose = () => {
   msgVisible.value = false;
 }
-
 </script>
 
 <style scoped lang="less">

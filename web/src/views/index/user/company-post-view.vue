@@ -112,7 +112,7 @@
           />
         </a-form-item>
         <a-form-item label="面试地点">
-          <a-input v-model:value="inviteForm.location" />
+          <a-input v-model:value="inviteForm.interviewLocation" />
         </a-form-item>
         <a-form-item label="备注信息">
           <a-textarea v-model:value="inviteForm.notes" />
@@ -148,7 +148,7 @@ const inviteModalVisible = ref(false);
 const currentPost = ref(null);
 const inviteForm = reactive({
   interviewTime: undefined,
-  location: '',
+  interviewLocation: '',
   notes: ''
 });
 
@@ -318,7 +318,7 @@ const confirmInvite = async () => {
     return;
   }
 
-  if (!inviteForm.interviewTime || !inviteForm.location) {
+  if (!inviteForm.interviewTime || !inviteForm.interviewLocation) {
     message.error('请填写完整的面试信息');
     return;
   }
@@ -326,9 +326,9 @@ const confirmInvite = async () => {
   try {
     await updatePostStatusApi({
       id: currentPost.value.id,
-      status: currentPost.value.status || 'interviewing',
-      interviewTime: inviteForm.interviewTime.toISOString(),
-      interviewLocation: inviteForm.location,
+      status: 'interviewing',
+      interviewTime: inviteForm.interviewTime,
+      interviewLocation: inviteForm.interviewLocation,
       notes: inviteForm.notes
     });
     message.success(currentPost.value.status === 'interviewing' ? '已更新面试信息' : '已发送面试邀请');

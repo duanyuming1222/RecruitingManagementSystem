@@ -16,11 +16,6 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
     NoticeMapper mapper;
 
     @Override
-    public List<Notice> getNoticeList() {
-        return mapper.selectList(new QueryWrapper<>());
-    }
-
-    @Override
     public void createNotice(Notice notice) {
         System.out.println(notice);
         notice.setCreateTime(String.valueOf(System.currentTimeMillis()));
@@ -36,4 +31,19 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
     public void updateNotice(Notice notice) {
         mapper.updateById(notice);
     }
+
+    @Override
+    public List<Notice> getNoticeList(String userId) {
+        QueryWrapper<com.gk.study.entity.Notice> wrapper = new QueryWrapper<>();
+        wrapper.eq("user_id", userId);
+        wrapper.orderByDesc("create_time");
+        return mapper.selectList(wrapper);
+    }
+
+    @Override
+    public List<String> getCompanyUserIds(String companyId) {
+        // 根据公司ID查询关联的用户ID
+        return mapper.selectUserIdsByCompanyId(companyId);
+    }
+
 }

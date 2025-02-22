@@ -14,6 +14,8 @@ public class Notice implements Serializable {
     @TableId(value = "id",type = IdType.AUTO)
     public Long id;
     @TableField
+    public String userId;
+    @TableField
     public String title;
     @TableField
     public String content;

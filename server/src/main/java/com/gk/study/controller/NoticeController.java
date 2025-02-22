@@ -26,9 +26,71 @@ public class NoticeController {
     @Autowired
     NoticeService service;
 
+    /**
+     * 创建简历投递通知
+     */
+    public void createResumeNotice(String userId, String companyId, String thingTitle) {
+        try {
+            Notice notice = new Notice();
+            // 查询公司关联的用户ID
+            List<String> companyUserIds = service.getCompanyUserIds(companyId);
+            for (String companyUserId : companyUserIds) {
+                notice.setUserId(companyUserId);
+                notice.setTitle("新简历投递通知");
+                notice.setContent("您收到了一份新的简历投递,职位:" + thingTitle);
+                notice.setCreateTime(String.valueOf(System.currentTimeMillis()));
+                service.createNotice(notice);
+            }
+        } catch (Exception e) {
+            logger.error("创建简历投递通知失败", e);
+        }
+    }
+
+    /**
+     * 创建简历状态变更通知
+     */
+    public void createStatusChangeNotice(String userId, String status, String thingTitle) {
+        try {
+            Notice notice = new Notice();
+            notice.setUserId(userId); // 通知发给用户
+            notice.setTitle("简历状态更新通知");
+            
+            String statusText;
+            String content;
+            switch(status) {
+                case "interviewing":
+                    statusText = "已安排面试";
+                    content = "您投递的职位\"" + thingTitle + "\"" + statusText;
+                    break;
+                case "rejected":
+                    statusText = "未通过";
+                    content = "您投递的职位\"" + thingTitle + "\"" + statusText;
+                    break;
+                case "hired":
+                    statusText = "已录用";
+                    content = "恭喜您! 您投递的职位\"" + thingTitle + "\"" + statusText + 
+                             "，offer将在3个工作日内发放至您的邮箱，请注意查收。";
+                    break;
+                default:
+                    statusText = "状态已更新";
+                    content = "您投递的职位\"" + thingTitle + "\"" + statusText;
+            }
+            
+            notice.setContent(content);
+            notice.setCreateTime(String.valueOf(System.currentTimeMillis()));
+            service.createNotice(notice);
+        } catch (Exception e) {
+            logger.error("创建状态变更通知失败", e);
+        }
+    }
+
     @RequestMapping(value = "/list", method = RequestMethod.GET)
-    public APIResponse list(){
-        List<Notice> list =  service.getNoticeList();
+    public APIResponse list(String userId){
+        if (userId == null || userId.isEmpty()) {
+            return new APIResponse(ResponeCode.FAIL, "参数错误");
+        }
+        // 获取用户的消息
+        List<Notice> list =  service.getNoticeList(userId);
         return new APIResponse(ResponeCode.SUCCESS, "查询成功", list);
     }
 
