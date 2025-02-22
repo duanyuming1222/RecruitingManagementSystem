@@ -8,22 +8,39 @@
           <div class="left">
             <span class="text">投递编号</span>
             <span class="num mg-4">#</span>
-            <span class="num">{{item.id}}</span>
+            <span class="num">{{ item.id }}</span>
           </div>
           <div class="right">
-            <span class="text">投递状态</span>
-            <span class="state">正常</span>
+            <span class="text">状态:</span>
+            <span :class="['state', getStatusClass(item.status)]">{{ getStatusText(item.status) }}</span>
           </div>
         </div>
         <div class="bottom flex-view">
           <div class="left">
-            <span class="text">{{item.thingTitle}}</span>
+            <span class="text">{{ item.thingTitle }}</span>
             <span class="open" @click="handleDetail(item.thingId)">岗位详情</span>
+            <a-button 
+              v-if="item.status === 'pending'" 
+              type="link" 
+              danger 
+              @click="handleCancel(item)"
+            >
+              取消投递
+            </a-button>
           </div>
           <div class="right flex-view">
             <span class="text">投递时间</span>
-            <span class="money">{{getFormatTime(item.createTime,true)}}</span>
+            <span class="money">{{ getFormatTime(item.createTime, true) }}</span>
+            <template v-if="item.status === 'interviewing'">
+              <span class="text mg-left">面试时间</span>
+              <span class="money">{{ formatInterviewTime(item.interviewTime) }}</span>
+              <span class="text mg-left">面试地点</span>
+              <span class="money">{{ item.interviewLocation }}</span>
+            </template>
           </div>
+        </div>
+        <div v-if="item.notes" class="notes">
+          备注：{{ item.notes }}
         </div>
       </div>
       <template v-if="!postData || postData.length <= 0">
@@ -36,8 +53,7 @@
 
 <script setup>
 import {message} from "ant-design-vue";
-import {listUserPostApi} from '/@/api/post'
-import {BASE_URL} from "/@/store/constants";
+import {listUserPostApi, updatePostStatusApi} from '/@/api/post'
 import {useUserStore} from "/@/store";
 import {getFormatTime} from "/@/utils";
 
@@ -72,6 +88,55 @@ const handleDetail =(thingId) =>{
   window.open(text.href, '_blank')
 }
 
+const getStatusText = (status) => {
+  const statusMap = {
+    pending: '待处理',
+    interviewing: '面试中',
+    hired: '已录用',
+    rejected: '未通过',
+    cancelled: '已取消'
+  };
+  return statusMap[status] || '待处理';
+};
+
+const getStatusClass = (status) => {
+  const classMap = {
+    pending: 'status-pending',
+    interviewing: 'status-interviewing',
+    hired: 'status-hired',
+    rejected: 'status-rejected',
+    cancelled: 'status-cancelled'
+  };
+  return classMap[status] || 'status-pending';
+};
+
+const handleCancel = async (post) => {
+  try {
+    await updatePostStatusApi({
+      id: post.id,
+      status: 'cancelled',
+      notes: '用户取消投递'
+    });
+    message.success('已取消投递');
+    getList();
+  } catch (err) {
+    message.error('操作失败');
+  }
+};
+
+const formatInterviewTime = (timeStr) => {
+  if (!timeStr) return '';
+  // 将UTC时间转换为本地时间
+  const date = new Date(timeStr);
+  return date.toLocaleString('zh-CN', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).replace(/\//g, '-');
+};
 
 </script>
 <style scoped lang="less">
@@ -116,11 +181,6 @@ const handleDetail =(thingId) =>{
 
     .mg-4 {
       margin-left: 4px;
-    }
-
-    .num {
-      font-weight: 500;
-      color: #152844;
     }
 
     .num {
@@ -302,6 +362,41 @@ const handleDetail =(thingId) =>{
 
 .order-item-view:first-child {
   margin-top: 16px;
+}
+
+.mg-left {
+  margin-left: 16px;
+}
+
+.notes {
+  margin-top: 12px;
+  color: #666;
+  font-size: 14px;
+}
+
+.state {
+  margin-left: 8px;
+  font-weight: 500;
+  
+  &.status-pending {
+    color: #faad14;
+  }
+  
+  &.status-interviewing {
+    color: #1890ff;
+  }
+  
+  &.status-hired {
+    color: #52c41a;
+  }
+  
+  &.status-rejected {
+    color: #ff4d4f;
+  }
+  
+  &.status-cancelled {
+    color: #999;
+  }
 }
 
 </style>

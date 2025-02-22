@@ -15,4 +15,6 @@ public interface PostService {
     List<Post> getUserPost(String userId);
 
     List<Post> getCompanyPost(String companyId);
+
+    Post getPostById(Long id);
 }

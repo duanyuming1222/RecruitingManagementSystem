@@ -7,6 +7,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Date;
+
 @Data
 @TableName("b_post")
 public class Post {
@@ -22,6 +24,16 @@ public class Post {
     public String companyId;
     @TableField
     public String createTime;
+    @TableField
+    private String status;
+    @TableField
+    private Date interviewTime;
+    @TableField
+    private String interviewLocation;
+    @TableField
+    private String notes;
+    @TableField
+    private String email;
 
     @TableField(exist = false)
     public String name;

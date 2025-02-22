@@ -51,4 +51,9 @@ public class PostServiceImpl extends ServiceImpl<PostMapper, Post> implements Po
 //        return mapper.selectList(queryWrapper);
         return mapper.getCompanyPostList(companyId);
     }
+
+    @Override
+    public Post getPostById(Long id) {
+        return mapper.selectById(id);
+    }
 }

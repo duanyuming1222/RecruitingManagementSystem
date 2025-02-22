@@ -3,9 +3,11 @@ package com.gk.study.controller;
 import com.gk.study.common.APIResponse;
 import com.gk.study.common.ResponeCode;
 import com.gk.study.entity.Company;
+import com.gk.study.entity.Post;
 import com.gk.study.permission.Access;
 import com.gk.study.permission.AccessLevel;
 import com.gk.study.service.CompanyService;
+import com.gk.study.service.PostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,6 +33,9 @@ public class CompanyController {
 
     @Autowired
     CompanyService service;
+
+    @Autowired
+    PostService postService;
 
     @Value("${File.uploadPath}")
     private String uploadPath;
@@ -100,4 +106,6 @@ public class CompanyController {
 
         return new APIResponse(ResponeCode.SUCCESS, "查询成功", list);
     }
+
+
 }

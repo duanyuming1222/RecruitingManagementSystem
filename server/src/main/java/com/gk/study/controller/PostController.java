@@ -9,18 +9,14 @@ import com.gk.study.service.PostService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/post")
@@ -82,5 +78,33 @@ public class PostController {
         return new APIResponse(ResponeCode.SUCCESS, "查询成功", list);
     }
 
+    @RequestMapping(value = "/updateStatus", method = RequestMethod.POST)
+    @Transactional
+    public APIResponse updatePostStatus(@RequestBody Post post) {
+        try {
+            Post existingPost = service.getPostById(post.getId());
+            if (existingPost == null) {
+                return new APIResponse(ResponeCode.FAIL, "投递记录不存在");
+            }
 
+            // 更新状态
+            existingPost.setStatus(post.getStatus());
+            
+            // 如果是面试邀请，保存面试信息
+            if ("interviewing".equals(post.getStatus())) {
+                existingPost.setInterviewTime(post.getInterviewTime());
+                existingPost.setInterviewLocation(post.getInterviewLocation());
+                existingPost.setNotes(post.getNotes());
+            } else {
+                // 如果是其他状态，只更新备注
+                existingPost.setNotes(post.getNotes());
+            }
+
+            service.updatePost(existingPost);
+            return new APIResponse(ResponeCode.SUCCESS, "更新成功");
+        } catch (Exception e) {
+            logger.error("更新状态失败", e);
+            return new APIResponse(ResponeCode.FAIL, "更新失败");
+        }
+    }
 }
